@@ -1,31 +1,19 @@
 package model;
 
 public class Crawler implements Racer {
-
     private final String id;
-    private int position = 0;
+    private int pos = 0;
 
-    public Crawler(String id) {
-        this.id = id;
-    }
+    public Crawler(String id) { this.id = id; }
 
-    @Override
-    public String getIdentifier() {
-        return id;
-    }
-
-    @Override
-    public int getPosition() {
-        return position;
-    }
-
-    @Override
-    public void reset() {
-        position = 0;
-    }
+    @Override public String getIdentifier() { return id; }
+    @Override public int getPosition() { return pos; }
+    @Override public void reset() { pos = 0; }
 
     @Override
     public void walk() {
-        position += 14;
+        // devagar mas constante
+        pos += 14;
     }
 }
+

@@ -9,6 +9,8 @@ public class PlayerStatistics implements RaceModel.Statistics, Serializable {
     private final String playerName;
     private int totalRaces = 0;
     private int correctBets = 0;
+
+    // key = identifier do Racer (ex: "sprinter", "crawler", "robot")
     private final Map<String, Integer> victories = new HashMap<>();
 
     public PlayerStatistics(String playerName) {
@@ -38,14 +40,18 @@ public class PlayerStatistics implements RaceModel.Statistics, Serializable {
     @Override
     public void finishRace(String winner, String bet) {
         totalRaces++;
+
         if (winner != null) {
             victories.put(winner, victories.getOrDefault(winner, 0) + 1);
-            if (winner.equals(bet)) correctBets++;
+            if (winner.equals(bet)) {
+                correctBets++;
+            }
         }
     }
 
     @Override
     public int percentageCorrectBets() {
-        return totalRaces == 0 ? 0 : (int) Math.round(100.0 * correctBets / totalRaces);
+        if (totalRaces == 0) return 0;
+        return (int) Math.round(100.0 * correctBets / totalRaces);
     }
 }

@@ -38,16 +38,25 @@ public class RaceGame implements RaceModel {
         return new ArrayList<Statistics>(allStats.values());
     }
 
+
     @Override
     public Iterable<Statistics> getTopTen() {
         List<PlayerStatistics> list = new ArrayList<>(allStats.values());
+
         list.sort(Comparator
                 .comparingInt(PlayerStatistics::percentageCorrectBets).reversed()
                 .thenComparingInt(PlayerStatistics::getTotalRaces).reversed()
-                .thenComparing(PlayerStatistics::getPlayerName));
-        int end = Math.min(10, list.size());
-        return new ArrayList<Statistics>(list.subList(0, end));
+                .thenComparing(PlayerStatistics::getPlayerName, String.CASE_INSENSITIVE_ORDER)
+        );
+
+        int limit = Math.min(10, list.size());
+        List<Statistics> top = new ArrayList<>(limit);
+        for (int i = 0; i < limit; i++) {
+            top.add(list.get(i)); // upcast para Statistics
+        }
+        return top;
     }
+
 
     @Override
     public void start(String bet) {
@@ -57,12 +66,12 @@ public class RaceGame implements RaceModel {
 
     @Override
     public Racer step() {
-
+        // 1) todos andam primeiro
         for (Racer r : racers) {
             r.walk();
         }
 
-
+        // 2) ver quem chegou e escolher o que ficou mais à frente
         Racer best = null;
         for (Racer r : racers) {
             if (r.getPosition() >= finishLine) {
@@ -74,7 +83,7 @@ public class RaceGame implements RaceModel {
 
         if (best == null) return null;
 
-
+        // 3) empate (mesma posição) -> escolhe aleatoriamente
         int bestPos = best.getPosition();
         List<Racer> tied = new ArrayList<>();
         for (Racer r : racers) {
@@ -84,7 +93,7 @@ public class RaceGame implements RaceModel {
         }
         Racer winner = tied.get(new Random().nextInt(tied.size()));
 
-
+        // 4) atualizar stats (no Model, como o enunciado pede)
         playerStats.finishRace(winner.getIdentifier(), currentBet);
 
         return winner;
@@ -95,7 +104,7 @@ public class RaceGame implements RaceModel {
         return saveToDisk();
     }
 
-
+    // ---------- Persistência (simples e suficiente) ----------
 
     @SuppressWarnings("unchecked")
     private void loadFromDisk() {
@@ -107,7 +116,7 @@ public class RaceGame implements RaceModel {
                 allStats.putAll((Map<String, PlayerStatistics>) map);
             }
         } catch (Exception ignored) {
-
+            // se falhar, começa vazio
         }
     }
 
