@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PlayerStatistics implements RaceModel.Statistics, Serializable {
+
     private final String playerName;
     private int totalRaces = 0;
     private int correctBets = 0;
@@ -14,11 +15,25 @@ public class PlayerStatistics implements RaceModel.Statistics, Serializable {
         this.playerName = playerName;
     }
 
-    @Override public String getPlayerName() { return playerName; }
-    @Override public int getTotalRaces() { return totalRaces; }
-    @Override public int getCorrectBets() { return correctBets; }
+    @Override
+    public String getPlayerName() {
+        return playerName;
+    }
 
-    public Map<String, Integer> getVictories() { return victories; }
+    @Override
+    public int getTotalRaces() {
+        return totalRaces;
+    }
+
+    @Override
+    public int getCorrectBets() {
+        return correctBets;
+    }
+
+    @Override
+    public Map<String, Integer> getVictories() {
+        return victories;
+    }
 
     @Override
     public void finishRace(String winner, String bet) {
@@ -31,7 +46,6 @@ public class PlayerStatistics implements RaceModel.Statistics, Serializable {
 
     @Override
     public int percentageCorrectBets() {
-        if (totalRaces == 0) return 0;
-        return (int) Math.round(100.0 * correctBets / totalRaces);
+        return totalRaces == 0 ? 0 : (int) Math.round(100.0 * correctBets / totalRaces);
     }
 }

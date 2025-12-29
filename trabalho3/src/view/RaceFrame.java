@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class RaceFrame extends JFrame implements RaceView {
 
@@ -16,112 +18,188 @@ public class RaceFrame extends JFrame implements RaceView {
     private final JButton startBtn = new JButton("Start Race");
     private final JButton topTenBtn = new JButton("Top Ten");
 
-    private final JLabel totalRacesLbl = new JLabel("0");
-    private final JLabel correctBetsLbl = new JLabel("0");
-    private final JLabel pctLbl = new JLabel("0%");
+    // Bets values
+    private final JLabel totalRacesVal = bigValueLabel("0");
+    private final JLabel correctBetsVal = bigValueLabel("0");
 
-    private final java.util.Map<String, Integer> winsCount = new java.util.LinkedHashMap<>();
-    private final java.util.Map<String, JLabel> winsLabels = new java.util.LinkedHashMap<>();
-
-
+    // Wins values (local, no changes in Model)
+    private final Map<String, Integer> winsCount = new LinkedHashMap<>();
+    private final Map<String, JLabel> winsValues = new LinkedHashMap<>();
 
     private final RacePanel racePanel;
-
     private Timer timer = null;
 
     public RaceFrame(RaceModel model) {
-        super("Corrida Improvável");
+        super("Car racing");
         this.model = model;
 
-        // topo (controles)
+        setLayout(new BorderLayout());
+
+        // ---------- TOP ----------
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        top.add(new JLabel("Aposta em:"));
         for (Racer r : model.getRacers()) betCombo.addItem(r.getIdentifier());
         top.add(betCombo);
         top.add(startBtn);
         top.add(topTenBtn);
+        add(top, BorderLayout.NORTH);
 
-        // stats
-        // --- caixas inferiores (direita) ---
+        // ---------- CENTER ----------
+        racePanel = new RacePanel(model.getRacers(), model.getFinishLine());
+        add(new JScrollPane(racePanel), BorderLayout.CENTER);
 
-        JPanel betsBox = createBetsBox();
-        JPanel winsBox = createWinsBox(); // cria labels p/ cada carro
+        // ---------- SOUTH (boxes bottom-right) ----------
+        JPanel betsBox = createBetsBox();            // contains 2 small panels
+        JPanel winsBox = createWinCountersBox();     // contains 3 small panels
 
-        JPanel bottomRight = new JPanel(new GridLayout(1, 2, 10, 0));
+        JPanel bottomRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         bottomRight.add(betsBox);
         bottomRight.add(winsBox);
 
         JPanel bottom = new JPanel(new BorderLayout());
-        bottom.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        bottom.add(bottomRight, BorderLayout.EAST); // <-- fica no canto inferior direito
-
+        bottom.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+        bottom.add(bottomRight, BorderLayout.EAST);
         add(bottom, BorderLayout.SOUTH);
 
-
-        // pista
-        racePanel = new RacePanel(model.getRacers(), model.getFinishLine());
-
-        setLayout(new BorderLayout());
-        add(top, BorderLayout.NORTH);
-        add(new JScrollPane(racePanel), BorderLayout.CENTER);
-
-        // timer (event-driven)
-       timer = new Timer(80, e -> {
+        // ---------- TIMER ----------
+         timer = new Timer(80, e -> {
             Racer winner = model.step();
             racePanel.updatePositions(model.getRacers(), model.getFinishLine());
+
             if (winner != null) {
                 timer.stop();
-                String id = winner.getIdentifier();
-                winsCount.put(id, winsCount.getOrDefault(id, 0) + 1);
-                winsLabels.get(id).setText(String.valueOf(winsCount.get(id)));
 
-                updateStatsUI();
+                updateBetsUI();
+                updateWinsUI();
+
                 JOptionPane.showMessageDialog(this,
-                        "Vencedor: " + winner.getIdentifier(),
-                        "Resultado",
+                        "Winner: " + winner.getIdentifier(),
+                        "Message",
                         JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
+        // ---------- LISTENERS ----------
         startListener();
         topTenListener();
 
-        updateStatsUI();
+        // initial UI
+        updateBetsUI();
+        updateWinsUI();
+        racePanel.updatePositions(model.getRacers(), model.getFinishLine());
 
+        // close + save
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(1000, 400);
-        setLocationRelativeTo(null);
-
-        // guardar stats ao sair
         addWindowListener(new WindowAdapter() {
             @Override public void windowClosing(WindowEvent e) {
                 model.saveStatistics();
             }
         });
+
+        setSize(1000, 520);
+        setLocationRelativeTo(null);
     }
 
-    private void updateStatsUI() {
+    // =========================
+    //   BOXES (nested panels)
+    // =========================
+
+    private JPanel createBetsBox() {
+        JPanel box = titledBox("bets");
+        box.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 6));
+
+        box.add(statCard("races", totalRacesVal));
+        box.add(statCard("correct", correctBetsVal));
+
+        return box;
+    }
+
+    private JPanel createWinCountersBox() {
+        JPanel box = titledBox("Win Counters");
+        box.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 6));
+
+        for (Racer r : model.getRacers()) {
+            String id = r.getIdentifier();
+
+            JLabel val = bigValueLabel("0"); // valor inicial provisório
+            winsValues.put(id, val);
+
+            box.add(statCard(id, val));
+        }
+        return box;
+    }
+
+    private static JPanel titledBox(String title) {
+        JPanel p = new JPanel();
+        p.setBorder(BorderFactory.createTitledBorder(title));
+        return p;
+    }
+
+    private static JPanel statCard(String title, JLabel valueLabel) {
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(210, 210, 210)),
+                BorderFactory.createEmptyBorder(6, 10, 6, 10)
+        ));
+
+        JLabel t = new JLabel(title);
+        t.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        valueLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        card.add(t);
+        card.add(Box.createVerticalStrut(4));
+        card.add(valueLabel);
+
+        return card;
+    }
+
+    private static JLabel bigValueLabel(String text) {
+        JLabel l = new JLabel(text);
+        l.setFont(l.getFont().deriveFont(Font.BOLD, 20f));
+        return l;
+    }
+
+    // =========================
+    //   UI UPDATE
+    // =========================
+
+    private void updateBetsUI() {
         var s = model.getPlayerStatistics();
-        totalRacesLbl.setText(String.valueOf(s.getTotalRaces()));
-        correctBetsLbl.setText(String.valueOf(s.getCorrectBets()));
-        pctLbl.setText(s.percentageCorrectBets() + "%");
+        totalRacesVal.setText(String.valueOf(s.getTotalRaces()));
+        correctBetsVal.setText(String.valueOf(s.getCorrectBets()));
+    }
+    private void updateWinsUI() {
+        var wins = model.getPlayerStatistics().getVictories();
+
+        for (var entry : winsValues.entrySet()) {
+            String id = entry.getKey();
+            int v = wins.getOrDefault(id, 0);
+            entry.getValue().setText(String.valueOf(v));
+        }
     }
 
 
+
+    // =========================
+    //   LISTENERS (RaceView)
+    // =========================
 
     @Override
     public void startListener() {
         startBtn.addActionListener(e -> {
             String bet = (String) betCombo.getSelectedItem();
             model.start(bet);
+
             racePanel.updatePositions(model.getRacers(), model.getFinishLine());
             timer.start();
         });
     }
 
-
     @Override
-    public void stepListener() {}
+    public void stepListener() {
+        // not used (Timer drives the race)
+    }
 
     @Override
     public void topTenListener() {
@@ -146,41 +224,7 @@ public class RaceFrame extends JFrame implements RaceView {
 
     @Override
     public void updateStatsFields(Racer winner) {
-        updateStatsUI();
+        updateBetsUI();
+        updateWinsUI();
     }
-    private JPanel createBetsBox() {
-        JPanel p = new JPanel(new GridLayout(3, 2, 6, 4));
-        p.setBorder(BorderFactory.createTitledBorder("Bets"));
-
-        p.add(new JLabel("Races:"));
-        p.add(totalRacesLbl);
-
-        p.add(new JLabel("Correct:"));
-        p.add(correctBetsLbl);
-
-        p.add(new JLabel("%:"));
-        p.add(pctLbl);
-
-        return p;
-    }
-
-    private JPanel createWinsBox() {
-        JPanel p = new JPanel(new GridLayout(0, 2, 6, 4));
-        p.setBorder(BorderFactory.createTitledBorder("Wins"));
-
-        for (Racer r : model.getRacers()) {
-            String id = r.getIdentifier();
-            winsCount.put(id, 0);
-
-            JLabel name = new JLabel(id);
-            JLabel val = new JLabel("0");
-            winsLabels.put(id, val);
-
-            p.add(name);
-            p.add(val);
-        }
-        return p;
-    }
-
-
 }

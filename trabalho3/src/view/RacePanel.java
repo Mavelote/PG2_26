@@ -5,64 +5,39 @@ import model.Racer;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class RacePanel extends JPanel {
 
-    int SPACING = 50;
-    private final int BASE_Y = SPACING/2;
-    private final int BASE_X = 20;
-    private final int LABEL_HEIGHT = 25;
-    private final int LABEL_WIDTH = 50;
+    private static final int SPACING = 50;
+    private static final int BASE_X = 20;
 
-    private ArrayList<JLabel> labels = new ArrayList<>();
+    private final List<JLabel> labels = new ArrayList<>();
+    private final int finishLine;
 
-
-    public RacePanel(Iterable<Racer> competitors, int width) {
+    public RacePanel(Iterable<Racer> racers, int finishLine) {
+        this.finishLine = finishLine;
         setLayout(null);
+
         int i = 0;
-        for (Racer c : competitors) {
-            JLabel lbl = new JLabel(c.getIdentifier().substring(0,2));
-            int startX = BASE_X + width;
-            int y = BASE_Y + i * SPACING;
-            lbl.setBounds(startX, y, LABEL_WIDTH, LABEL_HEIGHT);
+        for (Racer r : racers) {
+            JLabel lbl = new JLabel(r.getIdentifier());
+            lbl.setFont(lbl.getFont().deriveFont(Font.BOLD, 24f));
+            lbl.setBounds(BASE_X + finishLine, 20 + i * SPACING, 150, 30);
             labels.add(lbl);
             add(lbl);
             i++;
-            lbl.setFont(getFont().deriveFont(Font.BOLD, 32f));
         }
 
-        setPreferredSize(new Dimension(width+2*BASE_X+LABEL_WIDTH, SPACING*(labels.size()+1)));
+        setPreferredSize(new Dimension(finishLine + 200, i * SPACING + 40));
     }
 
-    public void updatePositions(Iterable<Racer> competitors, int finishLine) {
-        int index = 0;
-        int startX = BASE_X + finishLine;  // ponto de partida à direita
-
-        for (Racer c : competitors) {
-            int x = startX - c.getPosition();   // anda para a esquerda
-            int y = BASE_Y + index * SPACING;
-            labels.get(index).setLocation(x, y);
-            index++;
+    public void updatePositions(Iterable<Racer> racers, int finishLine) {
+        int i = 0;
+        for (Racer r : racers) {
+            labels.get(i).setLocation(BASE_X + finishLine - r.getPosition(), 20 + i * SPACING);
+            i++;
         }
         repaint();
-    }
-
-
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        Graphics2D g2 = (Graphics2D) g;
-
-        // Linha de chegada
-        g2.setColor(Color.RED);
-        g2.drawLine(LABEL_WIDTH, BASE_Y, LABEL_WIDTH,
-                 (labels.size()+1) * SPACING - BASE_Y);
-
-        // Linhas entre os corredores (faixas)
-        g2.setColor(Color.LIGHT_GRAY);
-        for (int i = 0; i < labels.size(); i++) {
-            int y = BASE_Y + i * SPACING + SPACING / 2;
-            g2.drawLine(0, y, getWidth(), y);
-        }
     }
 }

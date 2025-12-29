@@ -57,15 +57,37 @@ public class RaceGame implements RaceModel {
 
     @Override
     public Racer step() {
+
         for (Racer r : racers) {
             r.walk();
+        }
+
+
+        Racer best = null;
+        for (Racer r : racers) {
             if (r.getPosition() >= finishLine) {
-                // corrida terminou
-                playerStats.finishRace(r.getIdentifier(), currentBet);
-                return r;
+                if (best == null || r.getPosition() > best.getPosition()) {
+                    best = r;
+                }
             }
         }
-        return null;
+
+        if (best == null) return null;
+
+
+        int bestPos = best.getPosition();
+        List<Racer> tied = new ArrayList<>();
+        for (Racer r : racers) {
+            if (r.getPosition() >= finishLine && r.getPosition() == bestPos) {
+                tied.add(r);
+            }
+        }
+        Racer winner = tied.get(new Random().nextInt(tied.size()));
+
+
+        playerStats.finishRace(winner.getIdentifier(), currentBet);
+
+        return winner;
     }
 
     @Override
@@ -73,7 +95,7 @@ public class RaceGame implements RaceModel {
         return saveToDisk();
     }
 
-    // ---------- Persistência (simples e suficiente) ----------
+
 
     @SuppressWarnings("unchecked")
     private void loadFromDisk() {
@@ -85,7 +107,7 @@ public class RaceGame implements RaceModel {
                 allStats.putAll((Map<String, PlayerStatistics>) map);
             }
         } catch (Exception ignored) {
-            // se falhar, começa vazio
+
         }
     }
 
