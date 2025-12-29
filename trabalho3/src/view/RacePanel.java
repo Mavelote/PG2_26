@@ -1,6 +1,6 @@
 package view;
 
-import race.model.Racer;
+import model.Racer;
 
 import javax.swing.*;
 import java.awt.*;
