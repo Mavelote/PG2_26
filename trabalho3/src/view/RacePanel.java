@@ -30,15 +30,17 @@ public class RacePanel extends JPanel {
         setPreferredSize(new Dimension(width+2*BASE_X+LABEL_WIDTH, SPACING*(labels.size()+1)));
     }
 
-    public void updatePositions(Iterable<Racer> competitors) {
-        int index=0;
-        for (Racer c: competitors) {
-            labels.get(index).setLocation(getWidth()-LABEL_WIDTH - c.getPosition(),
-                    BASE_Y + index * SPACING);
-            ++index;
+    public void updatePositions(Iterable<Racer> competitors, int finishLine) {
+        int index = 0;
+        for (Racer c : competitors) {
+            int x = BASE_X + c.getPosition();
+            int y = BASE_Y + index * SPACING;
+            labels.get(index).setLocation(x, y);
+            index++;
         }
         repaint();
     }
+
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

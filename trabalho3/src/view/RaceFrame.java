@@ -22,7 +22,7 @@ public class RaceFrame extends JFrame implements RaceView {
 
     private final RacePanel racePanel;
 
-    private final Timer timer;
+    private Timer timer = null;
 
     public RaceFrame(RaceModel model) {
         super("Corrida Improvável");
@@ -51,7 +51,7 @@ public class RaceFrame extends JFrame implements RaceView {
         add(new JScrollPane(racePanel), BorderLayout.CENTER);
 
         // timer (event-driven)
-        timer = new Timer(80, e -> {
+       timer = new Timer(80, e -> {
             Racer winner = model.step();
             racePanel.updatePositions(model.getRacers(), model.getFinishLine());
             if (winner != null) {
