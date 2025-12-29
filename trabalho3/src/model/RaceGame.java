@@ -43,15 +43,15 @@ public class RaceGame implements RaceModel {
     public Iterable<Statistics> getTopTen() {
         List<PlayerStatistics> list = new ArrayList<>(allStats.values());
 
-        list.sort(Comparator
-                .comparingInt(PlayerStatistics::percentageCorrectBets).reversed()
-                .thenComparingInt(PlayerStatistics::getTotalRaces).reversed()
-                .thenComparing(PlayerStatistics::getPlayerName, String.CASE_INSENSITIVE_ORDER)
+        list.sort(
+                Comparator.comparingInt(PlayerStatistics::percentageCorrectBets).reversed()
+                        .thenComparing(Comparator.comparingInt(PlayerStatistics::getTotalRaces).reversed())
+                        .thenComparing(PlayerStatistics::getPlayerName, String.CASE_INSENSITIVE_ORDER)
         );
 
-        int limit = Math.min(10, list.size());
-        List<Statistics> top = new ArrayList<>(limit);
-        for (int i = 0; i < limit; i++) {
+        int end = Math.min(10, list.size());
+        List<Statistics> top = new ArrayList<>(end);
+        for (int i = 0; i < end; i++) {
             top.add(list.get(i)); // upcast para Statistics
         }
         return top;
