@@ -20,6 +20,11 @@ public class RaceFrame extends JFrame implements RaceView {
     private final JLabel correctBetsLbl = new JLabel("0");
     private final JLabel pctLbl = new JLabel("0%");
 
+    private final java.util.Map<String, Integer> winsCount = new java.util.LinkedHashMap<>();
+    private final java.util.Map<String, JLabel> winsLabels = new java.util.LinkedHashMap<>();
+
+
+
     private final RacePanel racePanel;
 
     private Timer timer = null;
@@ -37,17 +42,27 @@ public class RaceFrame extends JFrame implements RaceView {
         top.add(topTenBtn);
 
         // stats
-        JPanel stats = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        stats.add(new JLabel("Corridas:")); stats.add(totalRacesLbl);
-        stats.add(new JLabel("Certas:")); stats.add(correctBetsLbl);
-        stats.add(new JLabel("%:")); stats.add(pctLbl);
+        // --- caixas inferiores (direita) ---
+
+        JPanel betsBox = createBetsBox();
+        JPanel winsBox = createWinsBox(); // cria labels p/ cada carro
+
+        JPanel bottomRight = new JPanel(new GridLayout(1, 2, 10, 0));
+        bottomRight.add(betsBox);
+        bottomRight.add(winsBox);
+
+        JPanel bottom = new JPanel(new BorderLayout());
+        bottom.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        bottom.add(bottomRight, BorderLayout.EAST); // <-- fica no canto inferior direito
+
+        add(bottom, BorderLayout.SOUTH);
+
 
         // pista
         racePanel = new RacePanel(model.getRacers(), model.getFinishLine());
 
         setLayout(new BorderLayout());
         add(top, BorderLayout.NORTH);
-        add(stats, BorderLayout.SOUTH);
         add(new JScrollPane(racePanel), BorderLayout.CENTER);
 
         // timer (event-driven)
@@ -56,7 +71,11 @@ public class RaceFrame extends JFrame implements RaceView {
             racePanel.updatePositions(model.getRacers(), model.getFinishLine());
             if (winner != null) {
                 timer.stop();
-                updateStatsFields(winner);
+                String id = winner.getIdentifier();
+                winsCount.put(id, winsCount.getOrDefault(id, 0) + 1);
+                winsLabels.get(id).setText(String.valueOf(winsCount.get(id)));
+
+                updateStatsUI();
                 JOptionPane.showMessageDialog(this,
                         "Vencedor: " + winner.getIdentifier(),
                         "Resultado",
@@ -88,6 +107,8 @@ public class RaceFrame extends JFrame implements RaceView {
         pctLbl.setText(s.percentageCorrectBets() + "%");
     }
 
+
+
     @Override
     public void startListener() {
         startBtn.addActionListener(e -> {
@@ -98,8 +119,7 @@ public class RaceFrame extends JFrame implements RaceView {
         });
     }
 
-    // Nota: no teu interface RaceView existe "stepListener()".
-    // Aqui o step é automático (Timer). Podes deixar vazio ou ligar a um botão se existir.
+
     @Override
     public void stepListener() {}
 
@@ -128,4 +148,39 @@ public class RaceFrame extends JFrame implements RaceView {
     public void updateStatsFields(Racer winner) {
         updateStatsUI();
     }
+    private JPanel createBetsBox() {
+        JPanel p = new JPanel(new GridLayout(3, 2, 6, 4));
+        p.setBorder(BorderFactory.createTitledBorder("Bets"));
+
+        p.add(new JLabel("Races:"));
+        p.add(totalRacesLbl);
+
+        p.add(new JLabel("Correct:"));
+        p.add(correctBetsLbl);
+
+        p.add(new JLabel("%:"));
+        p.add(pctLbl);
+
+        return p;
+    }
+
+    private JPanel createWinsBox() {
+        JPanel p = new JPanel(new GridLayout(0, 2, 6, 4));
+        p.setBorder(BorderFactory.createTitledBorder("Wins"));
+
+        for (Racer r : model.getRacers()) {
+            String id = r.getIdentifier();
+            winsCount.put(id, 0);
+
+            JLabel name = new JLabel(id);
+            JLabel val = new JLabel("0");
+            winsLabels.put(id, val);
+
+            p.add(name);
+            p.add(val);
+        }
+        return p;
+    }
+
+
 }

@@ -19,11 +19,15 @@ public class RacePanel extends JPanel {
 
     public RacePanel(Iterable<Racer> competitors, int width) {
         setLayout(null);
-
+        int i = 0;
         for (Racer c : competitors) {
             JLabel lbl = new JLabel(c.getIdentifier().substring(0,2));
-            lbl.setBounds(width+2*BASE_X, BASE_Y + labels.size()*SPACING, LABEL_WIDTH, LABEL_HEIGHT);            labels.add(lbl);
+            int startX = BASE_X + width;
+            int y = BASE_Y + i * SPACING;
+            lbl.setBounds(startX, y, LABEL_WIDTH, LABEL_HEIGHT);
+            labels.add(lbl);
             add(lbl);
+            i++;
             lbl.setFont(getFont().deriveFont(Font.BOLD, 32f));
         }
 
@@ -32,8 +36,10 @@ public class RacePanel extends JPanel {
 
     public void updatePositions(Iterable<Racer> competitors, int finishLine) {
         int index = 0;
+        int startX = BASE_X + finishLine;  // ponto de partida à direita
+
         for (Racer c : competitors) {
-            int x = BASE_X + c.getPosition();
+            int x = startX - c.getPosition();   // anda para a esquerda
             int y = BASE_Y + index * SPACING;
             labels.get(index).setLocation(x, y);
             index++;

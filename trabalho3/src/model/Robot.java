@@ -15,10 +15,8 @@ public class Robot implements Racer {
 
     @Override
     public void walk() {
-        // irregular: alterna avanços grandes com hesitações
-        int r = rnd.nextInt(100);
-        if (r < 25) pos += 0;          // hesita
-        else if (r < 60) pos += 10;    // normal
-        else pos += 25;               // rápido
+        int r = rnd.nextInt(4);
+        // valores: 0, 14, 14, 28  => média = 14
+        pos += (r == 0) ? 0 : (r == 3) ? 28 : 14;
     }
 }

@@ -16,8 +16,6 @@ public class Sprinter implements Racer {
     @Override
     public void walk() {
         // acelera muito, mas às vezes perde estabilidade
-        int boost = 15 + rnd.nextInt(16); // 15..30
-        boolean slip = rnd.nextInt(10) == 0; // 10% falha
-        pos += slip ? 2 : boost;
+        pos += (rnd.nextBoolean() ? 20 : 8);
     }
 }

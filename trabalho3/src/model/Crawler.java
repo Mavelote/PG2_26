@@ -13,7 +13,7 @@ public class Crawler implements Racer {
     @Override
     public void walk() {
         // devagar mas constante
-        pos += 8;
+        pos += 14;
     }
 }
 
