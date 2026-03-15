@@ -1,5 +1,27 @@
 #include <stdio.h>
 
+#define MAX_FIELDS 10
+#define MAX_LINE 256
+
+int splitFields(char *str, char *fields[], int max);
+
+int main(){
+    char linha[MAX_LINE];
+    char *fields[MAX_FIELDS];
+
+    while (fgets(linha, MAX_LINE, stdin) != NULL)
+    {
+        int n_campos = splitFields(linha, fields, MAX_FIELDS);
+        for (int i = 0; i < n_campos && i < MAX_FIELDS; i++)
+        {
+            printf("{%s}", fields[i]);
+        }
+        
+    }
+    return 0;
+    
+}
+
 int splitFields(char *str, char *fields[], int max){
     int count = 0;
 
@@ -23,16 +45,4 @@ int splitFields(char *str, char *fields[], int max){
         
     }
     return count;
-}
-
-#define MAX_FIELDS 10
-
-
-int main(){
-    char *fields[MAX_FIELDS];
-    char s[] = "primeiro;; terceiro \t; ; palavras do quinto \n";
-    int n = splitFields( s, fields, MAX_FIELDS );
-    for( int i = 0; i < n && i < MAX_FIELDS; ++i ){
-        printf( "{%s}", fields[i] );
-    }
 }
