@@ -1,0 +1,1 @@
+primeiro;; terceiro \t; ; palavras do quinto 1234
