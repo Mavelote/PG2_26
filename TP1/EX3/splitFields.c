@@ -24,15 +24,3 @@ int splitFields(char *str, char *fields[], int max){
     }
     return count;
 }
-
-#define MAX_FIELDS 10
-
-
-int main(){
-    char *fields[MAX_FIELDS];
-    char s[] = "primeiro;; terceiro \t; ; palavras do quinto \n";
-    int n = splitFields( s, fields, MAX_FIELDS );
-    for( int i = 0; i < n && i < MAX_FIELDS; ++i ){
-        printf( "{%s}", fields[i] );
-    }
-}

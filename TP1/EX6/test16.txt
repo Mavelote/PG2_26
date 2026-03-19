@@ -1,0 +1,3 @@
+primeiro;; Terceiro ; ; PALAVRAS do Quinto 1234
+outro;; campo ; ; ignorar este
+mais um;; Terceiro ; ; PaLaVrAs DO qUiNtO 1234
