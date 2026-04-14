@@ -40,7 +40,10 @@ int main(int argc, char *argv[]){
 
             if (strcmp_ic(fields[target_index], search_string) == 0)
             {
-                printf("%s", original_line);
+            printf("%s", original_line);
+            if (strchr(original_line, '\n') == NULL) {
+            putchar('\n');
+}
             }
             
         }
