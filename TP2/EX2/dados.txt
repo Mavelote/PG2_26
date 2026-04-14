@@ -1,0 +1,4 @@
+Ana ; 123 ; Lisboa
+Bruno;456;Porto
+ ana;789;Coimbra
+Carlos;000;Faro
