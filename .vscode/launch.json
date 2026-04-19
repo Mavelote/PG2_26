@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/home/mavelote/PG3/TP1",
-      "program": "/home/mavelote/PG3/TP1/build/Debug/outDebug",
+      "cwd": "/home/PG2/PG2_26/TP2/EX3",
+      "program": "/home/PG2/PG2_26/TP2/EX3/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
