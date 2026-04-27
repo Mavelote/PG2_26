@@ -27,4 +27,4 @@ int splitFields(char *str, char *fields[], int max);
 void separatorUnify(char str[]);
 void collSortTitle(Collection *col);
 int strcmp_ic(const char *str1, const char *str2);
-
+int bookContainsAuthor(BookData *book, const char *word);
